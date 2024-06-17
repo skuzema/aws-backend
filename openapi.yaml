@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: Product Service API
+  description: API for managing products in the Product Service.
+  version: 1.0.0
+servers:
+  - url: https://0iyu3mo6ch.execute-api.eu-north-1.amazonaws.com/prod
+paths:
+  /products:
+    get:
+      summary: Get all products
+      description: Returns a list of all products.
+      responses:
+        "200":
+          description: A list of products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    description:
+                      type: string
+                      example: Short Product Description1
+                    id:
+                      type: string
+                      example: 7567ec4b-b10c-48c5-9345-fc73c48a80aa
+                    price:
+                      type: number
+                      example: 24
+                    title:
+                      type: string
+                      example: ProductOne
+        "500":
+          description: Internal Server Error
+  /products/{productId}:
+    get:
+      summary: Get product by ID
+      description: Returns a single product by its ID.
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to retrieve.
+      responses:
+        "200":
+          description: A single product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    example: Short Product Description1
+                  id:
+                    type: string
+                    example: 7567ec4b-b10c-48c5-9345-fc73c48a80aa
+                  price:
+                    type: number
+                    example: 24
+                  title:
+                    type: string
+                    example: ProductOne
+        "404":
+          description: Product not found
+        "500":
+          description: Internal Server Error
