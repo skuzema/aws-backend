@@ -5,7 +5,7 @@
     "aws-backend": "bin/aws-backend.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node build-lambda.js",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
