@@ -1,8 +1,11 @@
-import { DynamoDB } from "aws-sdk";
+import {
+  DynamoDBClient,
+  TransactWriteItemsCommand,
+} from "@aws-sdk/client-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 import { APIGatewayProxyHandler } from "aws-lambda";
 
-const dynamoDB = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
 
 const productsTableName = process.env.PRODUCTS_TABLE_NAME!;
 const stocksTableName = process.env.STOCKS_TABLE_NAME!;
@@ -29,35 +32,36 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const productId = uuidv4();
 
     const productItem = {
-      id: productId,
-      title,
-      description,
-      price,
+      id: { S: productId },
+      title: { S: title },
+      description: { S: description },
+      price: { N: price.toString() },
     };
 
     const stockItem = {
-      product_id: productId,
-      count,
+      product_id: { S: productId },
+      count: { N: count.toString() },
     };
 
-    await dynamoDB
-      .transactWrite({
-        TransactItems: [
-          {
-            Put: {
-              TableName: productsTableName,
-              Item: productItem,
-            },
+    const params = {
+      TransactItems: [
+        {
+          Put: {
+            TableName: productsTableName,
+            Item: productItem,
           },
-          {
-            Put: {
-              TableName: stocksTableName,
-              Item: stockItem,
-            },
+        },
+        {
+          Put: {
+            TableName: stocksTableName,
+            Item: stockItem,
           },
-        ],
-      })
-      .promise();
+        },
+      ],
+    };
+
+    const command = new TransactWriteItemsCommand(params);
+    await client.send(command);
 
     return {
       statusCode: 201,

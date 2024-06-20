@@ -1,10 +1,16 @@
-import { DynamoDB } from "aws-sdk";
+import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { APIGatewayProxyHandler } from "aws-lambda";
 
-const dynamoDB = new DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
 
-const productsTableName = process.env.PRODUCTS_TABLE_NAME!;
-const stocksTableName = process.env.STOCKS_TABLE_NAME!;
+const productsTableName = process.env.PRODUCTS_TABLE_NAME;
+const stocksTableName = process.env.STOCKS_TABLE_NAME;
+
+if (!productsTableName || !stocksTableName) {
+  throw new Error(
+    "Environment variables PRODUCTS_TABLE_NAME and STOCKS_TABLE_NAME must be defined"
+  );
+}
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const productId = event.pathParameters?.productId;
@@ -22,19 +28,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   }
 
   try {
-    const productResult = await dynamoDB
-      .get({
-        TableName: productsTableName,
-        Key: { id: productId },
-      })
-      .promise();
+    const productParams = {
+      TableName: productsTableName!,
+      Key: { id: { S: productId } },
+    };
+    const productCommand = new GetItemCommand(productParams);
+    const productResult = await client.send(productCommand);
 
-    const stockResult = await dynamoDB
-      .get({
-        TableName: stocksTableName,
-        Key: { product_id: productId },
-      })
-      .promise();
+    const stockParams = {
+      TableName: stocksTableName!,
+      Key: { product_id: { S: productId } },
+    };
+    const stockCommand = new GetItemCommand(stockParams);
+    const stockResult = await client.send(stockCommand);
 
     if (!productResult.Item) {
       return {
@@ -49,8 +55,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const response = {
-      ...productResult.Item,
-      count: stockResult.Item ? stockResult.Item.count : 0,
+      id: productResult.Item.id?.S || "",
+      title: productResult.Item.title?.S || "",
+      description: productResult.Item.description?.S || "",
+      price: productResult.Item.price?.N
+        ? parseFloat(productResult.Item.price.N)
+        : 0,
+      count: stockResult.Item?.count?.N
+        ? parseInt(stockResult.Item.count.N, 10)
+        : 0,
     };
 
     return {
