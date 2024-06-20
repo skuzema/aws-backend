@@ -1,9 +1,9 @@
 import { handler } from "../lambda/getProductsById";
 import { mockContext } from "./mockContext";
-import { createMockEvent } from "./mockEvent"; // Import the mock event creator
+import { createMockEvent } from "./createMockEvent";
 import { APIGatewayProxyResult } from "aws-lambda";
 
-const callback = () => {}; // Mock callback function
+const callback = () => {};
 
 test("getProductsById returns a product by ID", async () => {
   const event = createMockEvent({
@@ -15,8 +15,6 @@ test("getProductsById returns a product by ID", async () => {
     mockContext,
     callback
   )) as APIGatewayProxyResult;
-
-  console.log("Result for valid product ID:", result);
 
   expect(result.statusCode).toBe(200);
   const body = JSON.parse(result.body);
@@ -36,8 +34,6 @@ test("getProductsById returns 404 if product not found", async () => {
     mockContext,
     callback
   )) as APIGatewayProxyResult;
-
-  console.log("Result for nonexistent product ID:", result);
 
   expect(result.statusCode).toBe(404);
   const body = JSON.parse(result.body);

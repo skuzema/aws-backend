@@ -1,10 +1,17 @@
 import { handler } from "../lambda/getProductsList";
 import { mockContext } from "./mockContext";
+import { createMockEvent } from "./createMockEvent";
+import { APIGatewayProxyResult } from "aws-lambda";
+
+const callback = () => {}; // Mock callback function
 
 test("getProductsList returns a list of products", async () => {
-  const event = {};
-
-  const result = await handler(event);
+  const event = createMockEvent();
+  const result = (await handler(
+    event,
+    mockContext,
+    callback
+  )) as APIGatewayProxyResult;
 
   expect(result.statusCode).toBe(200);
   const body = JSON.parse(result.body);

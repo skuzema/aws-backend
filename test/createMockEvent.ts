@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 
-export const createMockEvent = (pathParameters: {
+export const createMockEvent = (pathParameters?: {
   [key: string]: string;
 }): APIGatewayProxyEvent => {
   return {
@@ -9,12 +9,12 @@ export const createMockEvent = (pathParameters: {
     multiValueHeaders: {},
     httpMethod: "GET",
     isBase64Encoded: false,
-    path: "",
-    pathParameters,
+    path: "/products",
+    pathParameters: pathParameters || null,
     queryStringParameters: null,
     multiValueQueryStringParameters: null,
     stageVariables: null,
-    requestContext: null as any, // You can provide a more detailed mock if needed
+    requestContext: {} as any,
     resource: "",
   };
 };
