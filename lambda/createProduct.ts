@@ -21,6 +21,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!event.body) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Methods": "PUT",
+        },
         body: JSON.stringify({
           message: "Invalid request, you are missing the parameter body",
         }),
@@ -28,6 +33,16 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const { title, description, price, count } = JSON.parse(event.body);
+
+    if (!title || !description || !price || !count) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          message:
+            "Invalid request, title, description, price and count are required",
+        }),
+      };
+    }
 
     const productId = uuidv4();
 
@@ -65,6 +80,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
 
     return {
       statusCode: 201,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Methods": "PUT",
+      },
       body: JSON.stringify({
         message: "Product created successfully",
         productId,
@@ -74,6 +94,11 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     console.error("Error creating product:", error);
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Methods": "PUT",
+      },
       body: JSON.stringify({
         message: "Internal Server Error",
       }),

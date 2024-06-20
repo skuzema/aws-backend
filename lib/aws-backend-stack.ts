@@ -52,6 +52,17 @@ export class AwsBackendStack extends cdk.Stack {
     productsTable.grantReadData(getProductsById);
     stocksTable.grantReadData(getProductsById);
 
+    const createProduct = new lambda.Function(this, "CreateProductHandler", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset("lambda"),
+      handler: "createProduct.handler",
+      environment: {
+        PRODUCTS_TABLE_NAME: productsTable.tableName,
+      },
+    });
+
+    productsTable.grantWriteData(createProduct);
+
     const api = new apigateway.RestApi(this, "ProductServiceAPI", {
       restApiName: "Product Service",
     });
@@ -59,6 +70,9 @@ export class AwsBackendStack extends cdk.Stack {
     const products = api.root.addResource("products");
     const getAllIntegration = new apigateway.LambdaIntegration(getProductsList);
     products.addMethod("GET", getAllIntegration);
+
+    const createIntegration = new apigateway.LambdaIntegration(createProduct);
+    products.addMethod("PUT", createIntegration);
 
     const singleProduct = products.addResource("{productId}");
     const getByIdIntegration = new apigateway.LambdaIntegration(
