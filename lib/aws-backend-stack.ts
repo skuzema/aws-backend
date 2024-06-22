@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as path from "path";
 
 export class AwsBackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -22,7 +23,7 @@ export class AwsBackendStack extends cdk.Stack {
       this,
       "GetProductsListHandler",
       {
-        runtime: lambda.Runtime.NODEJS_18_X,
+        runtime: lambda.Runtime.NODEJS_20_X,
         code: lambda.Code.fromAsset("lambda"),
         handler: "getProductsList.handler",
         environment: {
@@ -39,7 +40,7 @@ export class AwsBackendStack extends cdk.Stack {
       this,
       "GetProductsByIdHandler",
       {
-        runtime: lambda.Runtime.NODEJS_18_X,
+        runtime: lambda.Runtime.NODEJS_20_X,
         code: lambda.Code.fromAsset("lambda"),
         handler: "getProductsById.handler",
         environment: {
@@ -53,7 +54,7 @@ export class AwsBackendStack extends cdk.Stack {
     stocksTable.grantReadData(getProductsById);
 
     const createProduct = new lambda.Function(this, "CreateProductHandler", {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset("lambda"),
       handler: "createProduct.handler",
       environment: {
@@ -67,6 +68,10 @@ export class AwsBackendStack extends cdk.Stack {
 
     const api = new apigateway.RestApi(this, "ProductServiceAPI", {
       restApiName: "Product Service",
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+      },
     });
 
     const products = api.root.addResource("products");
@@ -79,9 +84,41 @@ export class AwsBackendStack extends cdk.Stack {
     );
     singleProduct.addMethod("GET", getByIdIntegration);
 
-    const putCreateIntegration = new apigateway.LambdaIntegration(
-      createProduct
+    api.addGatewayResponse("badRequestResponse", {
+      type: apigateway.ResponseType.BAD_REQUEST_BODY,
+      statusCode: "400",
+      templates: {
+        "application/json":
+          '{ "message": "$context.error.messageString", "issues": ["$context.error.validationErrorString"]}',
+      },
+    });
+
+    const requestValidator = new apigateway.RequestValidator(
+      this,
+      "RequestValidator",
+      {
+        restApi: api,
+        validateRequestBody: true,
+      }
     );
-    products.addMethod("POST", putCreateIntegration);
+
+    const requestModel = new apigateway.Model(this, "RequestModel", {
+      restApi: api,
+      contentType: "application/json",
+      schema: JSON.parse(
+        require("fs").readFileSync(
+          path.join(__dirname, "..", "schemas", "product-schema.json"),
+          "utf-8"
+        )
+      ),
+    });
+
+    const createIntegration = new apigateway.LambdaIntegration(createProduct);
+    products.addMethod("POST", createIntegration, {
+      requestValidator,
+      requestModels: {
+        "application/json": requestModel,
+      },
+    });
   }
 }
