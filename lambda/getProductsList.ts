@@ -13,6 +13,8 @@ if (!productsTableName || !stocksTableName) {
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
   try {
     const productsParams = {
       TableName: productsTableName!,
@@ -20,11 +22,15 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const productsCommand = new ScanCommand(productsParams);
     const productsResult = await client.send(productsCommand);
 
+    console.log("Products result:", JSON.stringify(productsResult, null, 2));
+
     const stocksParams = {
       TableName: stocksTableName!,
     };
     const stocksCommand = new ScanCommand(stocksParams);
     const stocksResult = await client.send(stocksCommand);
+
+    console.log("Stocks result:", JSON.stringify(stocksResult, null, 2));
 
     const products = productsResult.Items || [];
     const stocks = stocksResult.Items || [];
@@ -45,6 +51,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
           : 0,
       };
     });
+
+    console.log("Response:", JSON.stringify(response, null, 2));
 
     return {
       statusCode: 200,

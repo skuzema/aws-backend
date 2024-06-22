@@ -17,8 +17,11 @@ if (!productsTableName || !stocksTableName) {
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
   try {
     if (!event.body) {
+      console.log("Missing request body");
       return {
         statusCode: 400,
         headers: {
@@ -33,8 +36,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     }
 
     const { title, description, price, count } = JSON.parse(event.body);
+    console.log("Parsed request body:", { title, description, price, count });
 
     if (!title || !description || !price || !count) {
+      console.error(
+        "Invalid request. Title, description, price and count are required"
+      );
+
       return {
         statusCode: 400,
         headers: {
@@ -80,8 +88,12 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       ],
     };
 
+    console.log("Transact write params:", JSON.stringify(params, null, 2));
+
     const command = new TransactWriteItemsCommand(params);
     await client.send(command);
+
+    console.log("Successfully created product and stock with ID:", productId);
 
     return {
       statusCode: 201,
@@ -96,7 +108,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       }),
     };
   } catch (error) {
-    console.error("Error creating product:", error);
+    console.error("Error creating product and stock:", error);
     return {
       statusCode: 500,
       headers: {

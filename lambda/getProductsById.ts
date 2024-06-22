@@ -13,9 +13,12 @@ if (!productsTableName || !stocksTableName) {
 }
 
 export const handler: APIGatewayProxyHandler = async (event) => {
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
   const productId = event.pathParameters?.productId;
 
   if (!productId) {
+    console.log("Product ID is missing in the path parameters");
     return {
       statusCode: 400,
       headers: {
@@ -35,6 +38,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const productCommand = new GetItemCommand(productParams);
     const productResult = await client.send(productCommand);
 
+    console.log("Product result:", JSON.stringify(productResult, null, 2));
+
     const stockParams = {
       TableName: stocksTableName!,
       Key: { product_id: { S: productId } },
@@ -42,7 +47,10 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const stockCommand = new GetItemCommand(stockParams);
     const stockResult = await client.send(stockCommand);
 
+    console.log("Stock result:", JSON.stringify(stockResult, null, 2));
+
     if (!productResult.Item) {
+      console.log("Product not found for ID:", productId);
       return {
         statusCode: 404,
         headers: {
@@ -65,6 +73,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         ? parseInt(stockResult.Item.count.N, 10)
         : 0,
     };
+
+    console.log("Response:", JSON.stringify(response, null, 2));
 
     return {
       statusCode: 200,
