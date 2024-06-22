@@ -58,10 +58,12 @@ export class AwsBackendStack extends cdk.Stack {
       handler: "createProduct.handler",
       environment: {
         PRODUCTS_TABLE_NAME: productsTable.tableName,
+        STOCKS_TABLE_NAME: stocksTable.tableName,
       },
     });
 
     productsTable.grantWriteData(createProduct);
+    stocksTable.grantWriteData(createProduct);
 
     const api = new apigateway.RestApi(this, "ProductServiceAPI", {
       restApiName: "Product Service",
@@ -71,13 +73,15 @@ export class AwsBackendStack extends cdk.Stack {
     const getAllIntegration = new apigateway.LambdaIntegration(getProductsList);
     products.addMethod("GET", getAllIntegration);
 
-    const createIntegration = new apigateway.LambdaIntegration(createProduct);
-    products.addMethod("PUT", createIntegration);
-
     const singleProduct = products.addResource("{productId}");
     const getByIdIntegration = new apigateway.LambdaIntegration(
       getProductsById
     );
     singleProduct.addMethod("GET", getByIdIntegration);
+
+    const putCreateIntegration = new apigateway.LambdaIntegration(
+      createProduct
+    );
+    products.addMethod("POST", putCreateIntegration);
   }
 }

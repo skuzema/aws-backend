@@ -2,7 +2,7 @@ import {
   DynamoDBClient,
   TransactWriteItemsCommand,
 } from "@aws-sdk/client-dynamodb";
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 import { APIGatewayProxyHandler } from "aws-lambda";
 
 const client = new DynamoDBClient({});
@@ -24,7 +24,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Methods": "PUT",
+          "Access-Control-Allow-Methods": "POST",
         },
         body: JSON.stringify({
           message: "Invalid request, you are missing the parameter body",
@@ -37,14 +37,19 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!title || !description || !price || !count) {
       return {
         statusCode: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Methods": "POST",
+        },
         body: JSON.stringify({
           message:
-            "Invalid request, title, description, price and count are required",
+            "Invalid request. Title, description, price and count are required",
         }),
       };
     }
 
-    const productId = uuidv4();
+    const productId = randomUUID();
 
     const productItem = {
       id: { S: productId },
@@ -83,7 +88,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "PUT",
+        "Access-Control-Allow-Methods": "POST",
       },
       body: JSON.stringify({
         message: "Product created successfully",
@@ -97,7 +102,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "PUT",
+        "Access-Control-Allow-Methods": "POST",
       },
       body: JSON.stringify({
         message: "Internal Server Error",
