@@ -6,13 +6,18 @@
 3. Deploy:
    FrontEnd:
    https://dygwcz719ldx7.cloudfront.net/
+
    FrontEnd PR:
    https://github.com/skuzema/nodejs-aws-shop-react/pull/2
+
    API:
    https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products
+
    https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products/f371e24c-dbdf-4ff8-a6c2-12c6cdfaf275
+
    CreateProduct URL:
-   POST https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products
+   **POST https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products**
+
 4. Done 22.06.2024 / deadline 24.06.2024
 5. Score: 100 / 100
 
