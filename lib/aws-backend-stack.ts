@@ -2,12 +2,23 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as path from "path";
 
 export class AwsBackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Lambda function for getProductsList
+    const productsTable = new dynamodb.Table(this, "ProductsTable", {
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      tableName: "products",
+    });
+
+    const stocksTable = new dynamodb.Table(this, "StocksTable", {
+      partitionKey: { name: "product_id", type: dynamodb.AttributeType.STRING },
+      tableName: "stocks",
+    });
+
     const getProductsList = new lambda.Function(
       this,
       "GetProductsListHandler",
@@ -15,10 +26,16 @@ export class AwsBackendStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_20_X,
         code: lambda.Code.fromAsset("lambda"),
         handler: "getProductsList.handler",
+        environment: {
+          PRODUCTS_TABLE_NAME: productsTable.tableName,
+          STOCKS_TABLE_NAME: stocksTable.tableName,
+        },
       }
     );
 
-    // Lambda function for getProductsById
+    productsTable.grantReadData(getProductsList);
+    stocksTable.grantReadData(getProductsList);
+
     const getProductsById = new lambda.Function(
       this,
       "GetProductsByIdHandler",
@@ -26,24 +43,82 @@ export class AwsBackendStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_20_X,
         code: lambda.Code.fromAsset("lambda"),
         handler: "getProductsById.handler",
+        environment: {
+          PRODUCTS_TABLE_NAME: productsTable.tableName,
+          STOCKS_TABLE_NAME: stocksTable.tableName,
+        },
       }
     );
 
-    // API Gateway
-    const api = new apigateway.RestApi(this, "ProductServiceAPI", {
-      restApiName: "Product Service",
+    productsTable.grantReadData(getProductsById);
+    stocksTable.grantReadData(getProductsById);
+
+    const createProduct = new lambda.Function(this, "CreateProductHandler", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset("lambda"),
+      handler: "createProduct.handler",
+      environment: {
+        PRODUCTS_TABLE_NAME: productsTable.tableName,
+        STOCKS_TABLE_NAME: stocksTable.tableName,
+      },
     });
 
-    // /products endpoint
+    productsTable.grantWriteData(createProduct);
+    stocksTable.grantWriteData(createProduct);
+
+    const api = new apigateway.RestApi(this, "ProductServiceAPI", {
+      restApiName: "Product Service",
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+      },
+    });
+
     const products = api.root.addResource("products");
     const getAllIntegration = new apigateway.LambdaIntegration(getProductsList);
     products.addMethod("GET", getAllIntegration);
 
-    // /products/{productId} endpoint
     const singleProduct = products.addResource("{productId}");
     const getByIdIntegration = new apigateway.LambdaIntegration(
       getProductsById
     );
     singleProduct.addMethod("GET", getByIdIntegration);
+
+    api.addGatewayResponse("badRequestResponse", {
+      type: apigateway.ResponseType.BAD_REQUEST_BODY,
+      statusCode: "400",
+      templates: {
+        "application/json":
+          '{ "message": "$context.error.messageString", "issues": ["$context.error.validationErrorString"]}',
+      },
+    });
+
+    const requestValidator = new apigateway.RequestValidator(
+      this,
+      "RequestValidator",
+      {
+        restApi: api,
+        validateRequestBody: true,
+      }
+    );
+
+    const requestModel = new apigateway.Model(this, "RequestModel", {
+      restApi: api,
+      contentType: "application/json",
+      schema: JSON.parse(
+        require("fs").readFileSync(
+          path.join(__dirname, "..", "schemas", "product-schema.json"),
+          "utf-8"
+        )
+      ),
+    });
+
+    const createIntegration = new apigateway.LambdaIntegration(createProduct);
+    products.addMethod("POST", createIntegration, {
+      requestValidator,
+      requestModels: {
+        "application/json": requestModel,
+      },
+    });
   }
 }
