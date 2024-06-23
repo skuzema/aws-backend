@@ -1,6 +1,6 @@
-# Task 4 (Integration with NoSQL Database)
+# Task 5 (Integration with S3)
 
-1. Task: aws-developer/04_integration_with_nosql_database/task.md
+1. Task: [aws-developer/05_integration_with_s3/task.md](https://github.com/rolling-scopes-school/aws/blob/main/aws-developer/05_integration_with_s3/task.md)
 2. Screenshot:
    ![image](https://github.com/skuzema/aws-backend/assets/70452303/8a1c87ed-3b22-4ea7-819c-3f52a32850f3)
 3. Deploy:
@@ -22,14 +22,14 @@
 5. Score: 100 / 100
 
 - [x] Evaluation criteria (70 points for covering all criteria)
-  - [x] Task 4.1 is implemented. Command: **npm run fill-tables**.
-  - [x] Task 4.2 is implemented lambda links are provided and returns data
-  - [x] Task 4.3 is implemented lambda links are provided and products is stored in DB (call Task 4.2 to see the product). Your own Frontend application is integrated with Product Service (/products API) and products from Product Service are represented on Frontend. Link to a working Frontend application is provided for cross-check reviewer: https://dygwcz719ldx7.cloudfront.net/
+  - [x] AWS CDK Stack contains configuration for importProductsFile function
+  - [x] The importProductsFile lambda function returns a correct response which can be used to upload a file into the S3 bucket
+  - [x] Frontend application is integrated with importProductsFile lambda: https://dygwcz719ldx7.cloudfront.net/
+  - [x] The importFileParser lambda function is implemented and AWS CDK Stack contains configuration for the lambda
 - [x] Additional (optional) tasks (30 points)
-  - [x] _+7.5 (All languages)_ - POST /products lambda functions returns error 400 status code if product data is invalid
-  - [x] _+7.5 (All languages)_ - All lambdas return error 500 status code on any error (DB connection, any unhandled error in code)
-  - [x] _+7.5 (All languages)_ - All lambdas do console.log for each incoming requests and their arguments
-  - [x] _+7.5 (All languages)_ - Transaction based creation of product (in case stock creation is failed then related to this stock product is not created and not ready to be used by the end user and vice versa)
+  - [x] _+10 (All languages)_ - importProductsFile lambda is covered by unit tests. You should consider to mock S3 and other AWS SDK methods so not trigger actual AWS services while unit testing.
+  - [x] _+10 (All languages)_ - All lambdas return error 500 status code on any error (DB connection, any unhandled error in code)
+  - [x] _+10 (All languages)_ - All lambdas do console.log for each incoming requests and their arguments
 
 ## How to start
 
