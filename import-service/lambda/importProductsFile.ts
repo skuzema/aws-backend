@@ -6,14 +6,11 @@ const s3Client = new S3Client({});
 
 export const handler: APIGatewayProxyHandler = async (event) => {
   const { name } = event.queryStringParameters || {};
-
   if (!name) {
     return {
       statusCode: 400,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "GET",
       },
       body: JSON.stringify({ message: "Name query parameter is required" }),
     };
@@ -22,7 +19,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
   const params = {
     Bucket: process.env.BUCKET_NAME,
     Key: `uploaded/${name}`,
-    ContentType: "text/csv",
   };
 
   try {
@@ -35,8 +31,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "GET",
       },
       body: JSON.stringify({ url: signedUrl }),
     };
@@ -46,8 +40,6 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "GET",
       },
       body: JSON.stringify({ message: "Could not create signed URL" }),
     };

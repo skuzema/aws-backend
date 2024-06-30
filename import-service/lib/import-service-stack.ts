@@ -53,23 +53,23 @@ export class ImportServiceStack extends cdk.Stack {
       ],
     });
 
-    // const importFileParser = new lambda.Function(this, "importFileParser", {
-    //   runtime: lambda.Runtime.NODEJS_20_X,
-    //   code: lambda.Code.fromAsset("lambda"),
-    //   handler: "importFileParser.handler",
-    //   environment: {
-    //     BUCKET_NAME: importedBucket.bucketName,
-    //   },
-    //   events: [
-    //     new S3EventSource(importedBucket, {
-    //       events: [s3.EventType.OBJECT_CREATED],
-    //       filters: [{ prefix: "uploaded/" }],
-    //     }),
-    //   ],
-    // });
+    const importFileParser = new lambda.Function(this, "importFileParser", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      code: lambda.Code.fromAsset("lambda"),
+      handler: "importFileParser.handler",
+      environment: {
+        BUCKET_NAME: importedBucket.bucketName,
+      },
+      events: [
+        new S3EventSource(importedBucket, {
+          events: [s3.EventType.OBJECT_CREATED],
+          filters: [{ prefix: "uploaded/" }],
+        }),
+      ],
+    });
 
-    // importedBucket.grantRead(importFileParser);
-    // importedBucket.grantDelete(importFileParser);
-    // importedBucket.grantPut(importFileParser);
+    importedBucket.grantRead(importFileParser);
+    importedBucket.grantDelete(importFileParser);
+    importedBucket.grantPut(importFileParser);
   }
 }
