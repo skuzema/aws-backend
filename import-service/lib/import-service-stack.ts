@@ -3,7 +3,8 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
-import { S3EventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import * as s3n from "aws-cdk-lib/aws-s3-notifications";
+import * as path from "path";
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -60,13 +61,15 @@ export class ImportServiceStack extends cdk.Stack {
       environment: {
         BUCKET_NAME: importedBucket.bucketName,
       },
-      events: [
-        new S3EventSource(importedBucket, {
-          events: [s3.EventType.OBJECT_CREATED],
-          filters: [{ prefix: "uploaded/" }],
-        }),
-      ],
     });
+
+    importedBucket.addEventNotification(
+      s3.EventType.OBJECT_CREATED,
+      new s3n.LambdaDestination(importFileParser),
+      {
+        prefix: "uploaded/",
+      }
+    );
 
     importedBucket.grantRead(importFileParser);
     importedBucket.grantDelete(importFileParser);

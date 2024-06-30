@@ -11,6 +11,7 @@ import csv from "csv-parser";
 const s3Client = new S3Client({});
 
 export const handler: Handler = async (event: S3Event) => {
+  console.log("Start importFileParser");
   for (const record of event.Records) {
     const bucketName = record.s3.bucket.name;
     const objectKey = record.s3.object.key;
@@ -47,6 +48,7 @@ export const handler: Handler = async (event: S3Event) => {
 
           const copyCommand = new CopyObjectCommand(copyObjectParams);
           await s3Client.send(copyCommand);
+          console.log(`File copied to ${parsedKey}`);
 
           const deleteObjectParams = {
             Bucket: bucketName,
@@ -56,9 +58,7 @@ export const handler: Handler = async (event: S3Event) => {
           const deleteCommand = new DeleteObjectCommand(deleteObjectParams);
           await s3Client.send(deleteCommand);
 
-          console.log(
-            `File moved to ${parsedKey} and deleted from ${objectKey}`
-          );
+          console.log(`File deleted from ${objectKey}`);
         })
         .on("error", (error) => {
           console.error("Error processing CSV file:", error);
