@@ -2,7 +2,6 @@
 
 1. Task: [aws-developer/05_integration_with_s3/task.md](https://github.com/rolling-scopes-school/aws/blob/main/aws-developer/05_integration_with_s3/task.md)
 2. Screenshot:
-   ![image](https://github.com/skuzema/aws-backend/assets/70452303/8a1c87ed-3b22-4ea7-819c-3f52a32850f3)
 3. Deploy:
    FrontEnd:
    https://dygwcz719ldx7.cloudfront.net/
@@ -28,8 +27,8 @@
   - [x] The importFileParser lambda function is implemented and AWS CDK Stack contains configuration for the lambda
 - [x] Additional (optional) tasks (30 points)
   - [x] _+10 (All languages)_ - importProductsFile lambda is covered by unit tests. You should consider to mock S3 and other AWS SDK methods so not trigger actual AWS services while unit testing.
-  - [x] _+10 (All languages)_ - All lambdas return error 500 status code on any error (DB connection, any unhandled error in code)
-  - [x] _+10 (All languages)_ - All lambdas do console.log for each incoming requests and their arguments
+  - [x] _+10 (All languages)_ - importFileParser lambda is covered by unit tests.
+  - [x] _+10 (All languages)_ - At the end of the stream the lambda function should move the file from the uploaded folder into the parsed folder (move the file means that file should be copied into a new folder in the same bucket called parsed, and then deleted from uploaded folder)
 
 ## How to start
 

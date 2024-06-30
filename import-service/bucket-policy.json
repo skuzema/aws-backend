@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::650880631809:role/ImportServiceStack-importProductsFileServiceRole05E-Wrzjkqe26Zl5"
+        },
+        "Action": [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          "arn:aws:s3:::my-import-bucket-650880631809-eu-north-1",
+          "arn:aws:s3:::my-import-bucket-650880631809-eu-north-1/*"
+        ]
+      }
+    ]
+  }
+  
