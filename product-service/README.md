@@ -2,22 +2,17 @@
 
 1. Task: [aws-developer/05_integration_with_s3/task.md](https://github.com/rolling-scopes-school/aws/blob/main/aws-developer/05_integration_with_s3/task.md)
 2. Screenshot:
+   ![image](https://github.com/skuzema/aws-backend/assets/70452303/1337d573-09c2-4a22-92f7-f6816dcff808)
+   ![image](https://github.com/skuzema/aws-backend/assets/70452303/3c463786-678c-4c1c-bca1-c6ddffbef4be)
+   ![image](https://github.com/skuzema/aws-backend/assets/70452303/c1faa711-01d1-40d1-b045-973b703dfb1a)
 3. Deploy:
-   FrontEnd:
-   https://dygwcz719ldx7.cloudfront.net/
-
+   **FrontEnd:**
+   **https://dygwcz719ldx7.cloudfront.net/**
    FrontEnd PR:
-   https://github.com/skuzema/nodejs-aws-shop-react/pull/2
-
-   API:
-   https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products
-
-   https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products/f371e24c-dbdf-4ff8-a6c2-12c6cdfaf275
-
-   CreateProduct URL:
-   **POST https://ecy2nn2cgk.execute-api.eu-north-1.amazonaws.com/prod/products**
-
-4. Done 22.06.2024 / deadline 24.06.2024
+   https://github.com/skuzema/nodejs-aws-shop-react/pull/3
+   **API importProductsFile (Get signedURL):**
+   **GET https://xh6s7nt1ga.execute-api.eu-north-1.amazonaws.com/prod/import?name=test.csv**
+4. Done 30.06.2024 / deadline 01.07.2024
 5. Score: 100 / 100
 
 - [x] Evaluation criteria (70 points for covering all criteria)
@@ -34,6 +29,6 @@
 
 - clone repository
 - `npm i` install packages
-- `npm run fill-tables` populate tables with sample data
 - `npm run build` compile typescript to js
 - `cdk deploy` deploy this stack to your default AWS account/region
+- `npm test` run unit test
