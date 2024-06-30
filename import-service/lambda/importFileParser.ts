@@ -62,6 +62,7 @@ export const handler: Handler = async (event: S3Event) => {
         })
         .on("error", (error) => {
           console.error("Error processing CSV file:", error);
+          throw error;
         });
     } catch (error) {
       console.error("Error processing S3 event:", error);
