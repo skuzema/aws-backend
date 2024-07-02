@@ -7,7 +7,7 @@
    **https://dygwcz719ldx7.cloudfront.net/**
    FrontEnd PR:
    https://github.com/skuzema/nodejs-aws-shop-react/pull/3
-4. Done 02.07.2024 / deadline 08.07.2024
+4. Done 07.07.2024 / deadline 08.07.2024
 5. Score: 100 / 100
 
 - [x] Evaluation criteria (70 points for covering all criteria)
