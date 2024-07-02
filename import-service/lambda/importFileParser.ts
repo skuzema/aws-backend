@@ -30,40 +30,46 @@ export const handler: Handler = async (event: S3Event) => {
       }
 
       const stream = Body as Readable;
-      stream
-        .pipe(csv())
-        .on("data", (data) => {
-          console.log("Record:", data);
-        })
-        .on("end", async () => {
-          console.log("CSV file successfully processed");
 
-          const parsedKey = objectKey.replace("uploaded/", "parsed/");
+      const parseCSV = new Promise<void>((resolve, reject) => {
+        stream
+          .pipe(csv())
+          .on("data", (data) => {
+            console.log("Record:", data);
+          })
+          .on("end", () => {
+            console.log("CSV file successfully processed");
+            resolve();
+          })
+          .on("error", (error) => {
+            console.error("Error processing CSV file:", error);
+            reject(error);
+          });
+      });
 
-          const copyObjectParams = {
-            Bucket: bucketName,
-            CopySource: `${bucketName}/${objectKey}`,
-            Key: parsedKey,
-          };
+      await parseCSV;
 
-          const copyCommand = new CopyObjectCommand(copyObjectParams);
-          await s3Client.send(copyCommand);
-          console.log(`File copied to ${parsedKey}`);
+      const parsedKey = objectKey.replace("uploaded/", "parsed/");
 
-          const deleteObjectParams = {
-            Bucket: bucketName,
-            Key: objectKey,
-          };
+      const copyObjectParams = {
+        Bucket: bucketName,
+        CopySource: `${bucketName}/${objectKey}`,
+        Key: parsedKey,
+      };
 
-          const deleteCommand = new DeleteObjectCommand(deleteObjectParams);
-          await s3Client.send(deleteCommand);
+      const copyCommand = new CopyObjectCommand(copyObjectParams);
+      await s3Client.send(copyCommand);
+      console.log(`File copied to ${parsedKey}`);
 
-          console.log(`File deleted from ${objectKey}`);
-        })
-        .on("error", (error) => {
-          console.error("Error processing CSV file:", error);
-          throw error;
-        });
+      const deleteObjectParams = {
+        Bucket: bucketName,
+        Key: objectKey,
+      };
+
+      const deleteCommand = new DeleteObjectCommand(deleteObjectParams);
+      await s3Client.send(deleteCommand);
+
+      console.log(`File deleted from ${objectKey}`);
     } catch (error) {
       console.error("Error processing S3 event:", error);
     }
