@@ -135,7 +135,7 @@ export class AwsBackendStack extends cdk.Stack {
     const createProductTopic = new sns.Topic(this, "CreateProductTopic");
 
     createProductTopic.addSubscription(
-      new sns_subscriptions.EmailSubscription("your-email@example.com")
+      new sns_subscriptions.EmailSubscription("s.kuzema@gmail.com")
     );
 
     const catalogBatchProcess = new lambda.Function(
