@@ -4,11 +4,14 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 import { S3Event, Handler } from "aws-lambda";
 import { Readable } from "stream";
 import csv from "csv-parser";
 
 const s3Client = new S3Client({});
+const sqsClient = new SQSClient({});
+const SQS_QUEUE_URL = process.env.SQS_QUEUE_URL;
 
 export const handler: Handler = async (event: S3Event) => {
   console.log("Start importFileParser");
@@ -30,40 +33,53 @@ export const handler: Handler = async (event: S3Event) => {
       }
 
       const stream = Body as Readable;
-      stream
-        .pipe(csv())
-        .on("data", (data) => {
-          console.log("Record:", data);
-        })
-        .on("end", async () => {
-          console.log("CSV file successfully processed");
 
-          const parsedKey = objectKey.replace("uploaded/", "parsed/");
+      const parseCSV = new Promise<void>((resolve, reject) => {
+        stream
+          .pipe(csv())
+          .on("data", async (data) => {
+            console.log("Record:", data);
 
-          const copyObjectParams = {
-            Bucket: bucketName,
-            CopySource: `${bucketName}/${objectKey}`,
-            Key: parsedKey,
-          };
+            const sendMessageCommand = new SendMessageCommand({
+              QueueUrl: SQS_QUEUE_URL,
+              MessageBody: JSON.stringify(data),
+            });
 
-          const copyCommand = new CopyObjectCommand(copyObjectParams);
-          await s3Client.send(copyCommand);
-          console.log(`File copied to ${parsedKey}`);
+            await sqsClient.send(sendMessageCommand);
+          })
+          .on("end", () => {
+            console.log("CSV file successfully processed");
+            resolve();
+          })
+          .on("error", (error) => {
+            console.error("Error processing CSV file:", error);
+            reject(error);
+          });
+      });
 
-          const deleteObjectParams = {
-            Bucket: bucketName,
-            Key: objectKey,
-          };
+      await parseCSV;
 
-          const deleteCommand = new DeleteObjectCommand(deleteObjectParams);
-          await s3Client.send(deleteCommand);
+      const parsedKey = objectKey.replace("uploaded/", "parsed/");
 
-          console.log(`File deleted from ${objectKey}`);
-        })
-        .on("error", (error) => {
-          console.error("Error processing CSV file:", error);
-          throw error;
-        });
+      const copyObjectParams = {
+        Bucket: bucketName,
+        CopySource: `${bucketName}/${objectKey}`,
+        Key: parsedKey,
+      };
+
+      const copyCommand = new CopyObjectCommand(copyObjectParams);
+      await s3Client.send(copyCommand);
+      console.log(`File copied to ${parsedKey}`);
+
+      const deleteObjectParams = {
+        Bucket: bucketName,
+        Key: objectKey,
+      };
+
+      const deleteCommand = new DeleteObjectCommand(deleteObjectParams);
+      await s3Client.send(deleteCommand);
+
+      console.log(`File deleted from ${objectKey}`);
     } catch (error) {
       console.error("Error processing S3 event:", error);
     }
