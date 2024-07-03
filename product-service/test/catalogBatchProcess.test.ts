@@ -60,8 +60,8 @@ describe("catalogBatchProcess", () => {
 
     const result = await handler(event);
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body).message).toBe(
+    expect(result?.statusCode).toBe(200);
+    expect(JSON.parse(result?.body!).message).toBe(
       "Products created and notifications sent"
     );
 
@@ -99,8 +99,8 @@ describe("catalogBatchProcess", () => {
 
     const result = await handler(event);
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body).message).toBe(
+    expect(result?.statusCode).toBe(200);
+    expect(JSON.parse(result?.body!).message).toBe(
       "Products created and notifications sent"
     );
 
@@ -141,8 +141,8 @@ describe("catalogBatchProcess", () => {
 
     const result = await handler(event);
 
-    expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body).message).toBe(
+    expect(result?.statusCode).toBe(200);
+    expect(JSON.parse(result?.body!).message).toBe(
       "Products created and notifications sent"
     );
 
