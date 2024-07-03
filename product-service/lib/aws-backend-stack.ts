@@ -134,8 +134,26 @@ export class AwsBackendStack extends cdk.Stack {
     // Create SNS Topic
     const createProductTopic = new sns.Topic(this, "CreateProductTopic");
 
+    // Subscription for product with price less than 100
     createProductTopic.addSubscription(
-      new sns_subscriptions.EmailSubscription("s.kuzema@gmail.com")
+      new sns_subscriptions.EmailSubscription("s.kuzema@gmail.com", {
+        filterPolicy: {
+          price: sns.SubscriptionFilter.numericFilter({
+            lessThan: 100,
+          }),
+        },
+      })
+    );
+
+    // Subscription for product with price greater than or equal to 100
+    createProductTopic.addSubscription(
+      new sns_subscriptions.EmailSubscription("bpmtestusr1@gmail.com", {
+        filterPolicy: {
+          price: sns.SubscriptionFilter.numericFilter({
+            greaterThanOrEqualTo: 100,
+          }),
+        },
+      })
     );
 
     const catalogBatchProcess = new lambda.Function(
