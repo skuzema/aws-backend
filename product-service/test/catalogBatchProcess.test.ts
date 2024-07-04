@@ -5,7 +5,6 @@ import { handler } from "../lambda/catalogBatchProcess";
 import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 
-// Mock the clients
 const snsMock = mockClient(SNSClient);
 const dynamoDBMock = mockClient(DynamoDBClient);
 
