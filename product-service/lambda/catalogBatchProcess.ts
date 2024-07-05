@@ -1,6 +1,7 @@
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
 import { SQSEvent, SQSRecord } from "aws-lambda";
+import { v4 as uuidv4 } from "uuid";
 
 const snsClient = new SNSClient({});
 const dynamoDBClient = new DynamoDBClient({});
@@ -11,6 +12,11 @@ const CREATE_PRODUCT_TOPIC_ARN = process.env.CREATE_PRODUCT_TOPIC_ARN!;
 export const handler = async (event: SQSEvent) => {
   const snsPromises = event.Records.map(async (record: SQSRecord) => {
     const product = JSON.parse(record.body);
+
+    // Generate a unique id if not present
+    if (!product.id) {
+      product.id = uuidv4();
+    }
 
     const putProductItemCommand = new PutItemCommand({
       TableName: PRODUCTS_TABLE_NAME,
