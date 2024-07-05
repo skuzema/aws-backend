@@ -14,7 +14,7 @@ const sqsClient = new SQSClient({});
 const SQS_QUEUE_URL = process.env.SQS_QUEUE_URL;
 
 export const handler: Handler = async (event: S3Event) => {
-  console.log("StartI CSV file process");
+  console.log("Start CSV file process");
   for (const record of event.Records) {
     const bucketName = record.s3.bucket.name;
     const objectKey = record.s3.object.key;

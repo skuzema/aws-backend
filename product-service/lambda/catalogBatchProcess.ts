@@ -39,6 +39,7 @@ export const handler = async (event: SQSEvent) => {
     });
 
     await snsClient.send(publishCommand);
+    console.log("snsClient publishCommand:", publishCommand);
   });
 
   await Promise.all(snsPromises);
