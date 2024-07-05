@@ -8,6 +8,7 @@ import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as sns_subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export class AwsBackendStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -125,13 +126,12 @@ export class AwsBackendStack extends cdk.Stack {
       },
     });
 
-    // Create SQS queue
+    // SQS
     const catalogItemsQueue = new sqs.Queue(this, "CatalogItemsQueue", {
       queueName: "catalogItemsQueue",
       visibilityTimeout: cdk.Duration.seconds(300),
     });
 
-    // Create SNS Topic
     const createProductTopic = new sns.Topic(this, "CreateProductTopic");
 
     // Subscription for product with price less than 100
@@ -164,11 +164,17 @@ export class AwsBackendStack extends cdk.Stack {
         code: lambda.Code.fromAsset("lambda"),
         handler: "catalogBatchProcess.handler",
         environment: {
-          PRODUCTS_TABLE_NAME: process.env.PRODUCTS_TABLE_NAME!,
+          PRODUCTS_TABLE_NAME: productsTable.tableName,
+          STOCKS_TABLE_NAME: stocksTable.tableName,
           CREATE_PRODUCT_TOPIC_ARN: createProductTopic.topicArn,
         },
       }
     );
+
+    productsTable.grantReadData(catalogBatchProcess);
+    stocksTable.grantReadData(catalogBatchProcess);
+    productsTable.grantWriteData(catalogBatchProcess);
+    stocksTable.grantWriteData(catalogBatchProcess);
 
     createProductTopic.grantPublish(catalogBatchProcess);
 

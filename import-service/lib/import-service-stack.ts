@@ -5,6 +5,7 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as s3n from "aws-cdk-lib/aws-s3-notifications";
 import * as path from "path";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export class ImportServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -60,8 +61,18 @@ export class ImportServiceStack extends cdk.Stack {
       handler: "importFileParser.handler",
       environment: {
         BUCKET_NAME: importedBucket.bucketName,
+        SQS_QUEUE_URL:
+          "https://sqs.eu-north-1.amazonaws.com/650880631809/catalogItemsQueue",
       },
     });
+
+    importFileParser.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["sqs:SendMessage"],
+        resources: ["arn:aws:sqs:eu-north-1:650880631809:catalogItemsQueue"],
+      })
+    );
 
     importedBucket.addEventNotification(
       s3.EventType.OBJECT_CREATED,

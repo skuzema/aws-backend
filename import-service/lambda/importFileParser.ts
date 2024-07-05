@@ -14,7 +14,7 @@ const sqsClient = new SQSClient({});
 const SQS_QUEUE_URL = process.env.SQS_QUEUE_URL;
 
 export const handler: Handler = async (event: S3Event) => {
-  console.log("Start importFileParser");
+  console.log("StartI CSV file process");
   for (const record of event.Records) {
     const bucketName = record.s3.bucket.name;
     const objectKey = record.s3.object.key;
@@ -38,8 +38,6 @@ export const handler: Handler = async (event: S3Event) => {
         stream
           .pipe(csv())
           .on("data", async (data) => {
-            console.log("Record:", data);
-
             const sendMessageCommand = new SendMessageCommand({
               QueueUrl: SQS_QUEUE_URL,
               MessageBody: JSON.stringify(data),
