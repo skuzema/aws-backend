@@ -14,7 +14,7 @@ describe("catalogBatchProcess", () => {
   beforeAll(() => {
     process.env.PRODUCTS_TABLE_NAME = "ProductsTable";
     process.env.CREATE_PRODUCT_TOPIC_ARN =
-      "arn:aws:sns:region:account-id:CreateProductTopic";
+      "arn:aws:sns:eu-north-1:650880631809:AwsBackendStack-CreateProductTopicE4CD9217-Kw2en6ygX9Op";
   });
 
   afterAll(() => {

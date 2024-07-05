@@ -9,7 +9,6 @@ const STOCKS_TABLE_NAME = process.env.STOCKS_TABLE_NAME!;
 const CREATE_PRODUCT_TOPIC_ARN = process.env.CREATE_PRODUCT_TOPIC_ARN!;
 
 export const handler = async (event: SQSEvent) => {
-  console.log("Start catalogBatchProcess");
   const snsPromises = event.Records.map(async (record: SQSRecord) => {
     const product = JSON.parse(record.body);
 
@@ -36,10 +35,15 @@ export const handler = async (event: SQSEvent) => {
     const publishCommand = new PublishCommand({
       TopicArn: CREATE_PRODUCT_TOPIC_ARN,
       Message: JSON.stringify(product),
+      MessageAttributes: {
+        price: {
+          DataType: "Number",
+          StringValue: product.price.toString(),
+        },
+      },
     });
 
     await snsClient.send(publishCommand);
-    console.log("snsClient publishCommand:", publishCommand);
   });
 
   await Promise.all(snsPromises);
