@@ -1,28 +1,20 @@
 # Task 6 (SQS & SNS, Async Microservices Communication)
 
-1. Task: [Task 6 (SQS & SNS, Async Microservices Communication)](https://github.com/rolling-scopes-school/aws/blob/main/aws-developer/06_async_microservices_communication/task.md)
+1. Task: [Task 7 (Authorization)](https://github.com/rolling-scopes-school/aws/blob/main/aws-developer/07_authorization/task.md)
 2. Screenshot:
-   ![image](https://github.com/skuzema/aws-backend/assets/70452303/1224abce-61a4-49fc-8ae6-46c30af95c49)
 3. Deploy:
    **FrontEnd: https://dygwcz719ldx7.cloudfront.net/**
    **FrontEnd PR: https://github.com/skuzema/nodejs-aws-shop-react/pull/3**
-4. Done 07.07.2024 / deadline 08.07.2024
+4. Done 14.07.2024 / deadline 15.07.2024
 5. Score: 100 / 100
 
 - [x] Evaluation criteria (70 points for covering all criteria)
-  - [x] AWS CDK Stack contains configuration for catalogBatchProcess function
-  - [x] AWS CDK Stack contains policies to allow lambda catalogBatchProcess function to interact with SNS and SQS
-  - [x] AWS CDK Stack contains configuration for SQS catalogItemsQueue
-  - [x] AWS CDK Stack contains configuration for SNS Topic createProductTopic and email subscription
+      Provide your reviewers with the link to the repo, client application and URLs to execute the /import path of the Import Service`
+  - [x] authorization-service is added to the repo, has correct basicAuthorizer lambda and correct AWS CDK Stack
+  - [x] Import Service AWS CDK Stack has authorizer configuration for the importProductsFile lambda. Request to the importProductsFile lambda should work only with correct authorization_token being decoded and checked by basicAuthorizer lambda. Response should be in 403 HTTP status if access is denied for this user (invalid authorization_token) and in 401 HTTP status if Authorization header is not provided.
+  - [x] Client application is updated to send "Authorization: Basic authorization_token" header on import. Client should get authorization_token value from browser localStorage
 - [x] Additional (optional) tasks (30 points)
-  - [x] _+15 (All languages)_ - catalogBatchProcess lambda is covered by unit tests
-
-![image](https://github.com/skuzema/aws-backend/assets/70452303/c086e448-f1a8-4c0b-8b10-c053aed94465)
-
-- [x] _+15 (All languages)_ - set a Filter Policy for SNS createProductTopic in AWS CDK Stack and create an additional email subscription to distribute messages to different emails depending on the filter for any product attribute.
-      **Emails distributed by product price: if price < 100: it's send to email Nr.1, if price >=100: to email Nr.2**
-      ![image](https://github.com/skuzema/aws-backend/assets/70452303/c36c9798-cd9a-41df-890d-7e689fed326e)
-      ![image](https://github.com/skuzema/aws-backend/assets/70452303/52d7885e-6a6c-4321-9ad2-6487f3ea6a82)
+  - [x] _+30 (All languages)_ - Client application should display alerts for the responses in 401 and 403 HTTP statuses. This behavior should be added to the nodejs-aws-fe-main/src/index.tsx file.
 
 ## How to start
 
