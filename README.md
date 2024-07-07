@@ -1,4 +1,4 @@
-# Task 6 (SQS & SNS, Async Microservices Communication)
+# Task 7 (Authorization)
 
 1. Task: [Task 7 (Authorization)](https://github.com/rolling-scopes-school/aws/blob/main/aws-developer/07_authorization/task.md)
 2. Screenshot:
