@@ -4,7 +4,7 @@
 2. Screenshot:
 3. Deploy:
    **FrontEnd: https://dygwcz719ldx7.cloudfront.net/**
-   **FrontEnd PR: https://github.com/skuzema/nodejs-aws-shop-react/pull/3**
+   **FrontEnd PR: https://github.com/skuzema/nodejs-aws-shop-react/pull/4**
 4. Done 14.07.2024 / deadline 15.07.2024
 5. Score: 100 / 100
 
