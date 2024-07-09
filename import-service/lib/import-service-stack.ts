@@ -36,12 +36,23 @@ export class ImportServiceStack extends cdk.Stack {
       },
     });
 
+    const authorizer = new apigateway.RequestAuthorizer(
+      this,
+      "basicAuthorizer",
+      {
+        handler: importProductsFile,
+        identitySources: [apigateway.IdentitySource.header("Authorization")],
+      }
+    );
+
     const importResource = api.root.addResource("import");
     const importIntegration = new apigateway.LambdaIntegration(
       importProductsFile
     );
 
     importResource.addMethod("GET", importIntegration, {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.CUSTOM,
       requestParameters: {
         "method.request.querystring.name": true,
       },

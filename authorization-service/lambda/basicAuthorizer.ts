@@ -1,6 +1,7 @@
 import {
   APIGatewayTokenAuthorizerEvent,
   APIGatewayAuthorizerResult,
+  StatementEffect,
 } from "aws-lambda";
 import * as dotenv from "dotenv";
 
@@ -8,7 +9,7 @@ dotenv.config();
 
 const generatePolicy = (
   principalId: string,
-  effect: string,
+  effect: StatementEffect,
   resource: string
 ): APIGatewayAuthorizerResult => {
   const authResponse: APIGatewayAuthorizerResult = {
