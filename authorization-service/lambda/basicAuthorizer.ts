@@ -30,7 +30,12 @@ const generatePolicy = (
 
 export const handler = async (event: APIGatewayTokenAuthorizerEvent) => {
   if (!event.authorizationToken) {
-    return generatePolicy("user", "Deny", event.methodArn);
+    throw new Error(
+      JSON.stringify({
+        statusCode: 401,
+        message: "Unauthorized",
+      })
+    );
   }
 
   const authToken = event.authorizationToken.split(" ")[1];
@@ -42,6 +47,11 @@ export const handler = async (event: APIGatewayTokenAuthorizerEvent) => {
   if (expectedPassword && expectedPassword === password) {
     return generatePolicy(username, "Allow", event.methodArn);
   } else {
-    return generatePolicy(username, "Deny", event.methodArn);
+    throw new Error(
+      JSON.stringify({
+        statusCode: 403,
+        message: "Forbidden",
+      })
+    );
   }
 };
