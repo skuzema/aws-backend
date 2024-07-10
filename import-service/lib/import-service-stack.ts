@@ -4,7 +4,6 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as s3n from "aws-cdk-lib/aws-s3-notifications";
-import * as path from "path";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export class ImportServiceStack extends cdk.Stack {
