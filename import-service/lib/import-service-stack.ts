@@ -32,6 +32,7 @@ export class ImportServiceStack extends cdk.Stack {
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
       },
     });
 
@@ -44,11 +45,11 @@ export class ImportServiceStack extends cdk.Stack {
       }
     );
 
-    const importResource = api.root.addResource("import");
     const importIntegration = new apigateway.LambdaIntegration(
       importProductsFile
     );
 
+    const importResource = api.root.addResource("import");
     importResource.addMethod("GET", importIntegration, {
       authorizer,
       authorizationType: apigateway.AuthorizationType.CUSTOM,
@@ -58,11 +59,20 @@ export class ImportServiceStack extends cdk.Stack {
       methodResponses: [
         {
           statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Methods": true,
+          },
           responseModels: {
             "application/json": apigateway.Model.EMPTY_MODEL,
           },
         },
       ],
+    });
+
+    new cdk.CfnOutput(this, "APIEndpoint", {
+      value: api.url,
     });
 
     const importFileParser = new lambda.Function(this, "importFileParser", {
@@ -95,5 +105,25 @@ export class ImportServiceStack extends cdk.Stack {
     importedBucket.grantRead(importFileParser);
     importedBucket.grantDelete(importFileParser);
     importedBucket.grantPut(importFileParser);
+
+    api.addGatewayResponse("UnauthorizedResponse", {
+      type: apigateway.ResponseType.UNAUTHORIZED,
+      statusCode: "401",
+      responseHeaders: {
+        "Access-Control-Allow-Origin": "'*'",
+        "Access-Control-Allow-Headers": "'*'",
+        "Access-Control-Allow-Methods": "'*'",
+      },
+    });
+
+    api.addGatewayResponse("AccessDeniedResponse", {
+      type: apigateway.ResponseType.ACCESS_DENIED,
+      statusCode: "403",
+      responseHeaders: {
+        "Access-Control-Allow-Origin": "'*'",
+        "Access-Control-Allow-Headers": "'*'",
+        "Access-Control-Allow-Methods": "'*'",
+      },
+    });
   }
 }

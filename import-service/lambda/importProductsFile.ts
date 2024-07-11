@@ -11,6 +11,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 400,
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({ message: "Name query parameter is required" }),
     };
@@ -31,6 +33,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({ url: signedUrl }),
     };
@@ -40,6 +44,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({ message: "Could not create signed URL" }),
     };
