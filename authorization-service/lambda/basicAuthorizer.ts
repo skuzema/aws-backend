@@ -10,13 +10,6 @@ export const handler = async (
   context: Context,
   callback: Callback<APIGatewayAuthorizerResult>
 ) => {
-  console.log("Received event:", JSON.stringify(event, null, 2));
-
-  console.log(
-    "event.headers:",
-    event.headers,
-    !event.headers || !event.headers.Authorization
-  );
   if (!event.headers || !event.headers.Authorization) {
     return callback(null, generatePolicy("user", "Deny", event.methodArn, 401));
   }
@@ -26,13 +19,6 @@ export const handler = async (
   const [username, password] = decodedCredentials.split(":");
 
   const expectedPassword = process.env[username];
-
-  console.log(
-    "expectedPassword:",
-    expectedPassword,
-    password,
-    !expectedPassword || expectedPassword !== password
-  );
 
   if (!expectedPassword || expectedPassword !== password) {
     return callback(
