@@ -1,26 +1,38 @@
 import {
   APIGatewayAuthorizerResult,
-  APIGatewayTokenAuthorizerEvent,
+  APIGatewayRequestAuthorizerEvent,
   Context,
   Callback,
 } from "aws-lambda";
 
 export const handler = async (
-  event: APIGatewayTokenAuthorizerEvent,
+  event: APIGatewayRequestAuthorizerEvent,
   context: Context,
   callback: Callback<APIGatewayAuthorizerResult>
 ) => {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
-  if (!event.authorizationToken) {
+  console.log(
+    "event.headers:",
+    event.headers,
+    !event.headers || !event.headers.Authorization
+  );
+  if (!event.headers || !event.headers.Authorization) {
     return callback(null, generatePolicy("user", "Deny", event.methodArn, 401));
   }
 
-  const token = event.authorizationToken.split(" ")[1];
+  const token = event.headers.Authorization.split(" ")[1];
   const decodedCredentials = Buffer.from(token, "base64").toString("utf-8");
   const [username, password] = decodedCredentials.split(":");
 
   const expectedPassword = process.env[username];
+
+  console.log(
+    "expectedPassword:",
+    expectedPassword,
+    password,
+    !expectedPassword || expectedPassword !== password
+  );
 
   if (!expectedPassword || expectedPassword !== password) {
     return callback(
@@ -37,10 +49,10 @@ export const handler = async (
 
 const generatePolicy = (
   principalId: string,
-  effect: string,
+  effect: "Allow" | "Deny",
   resource: string,
   statusCode: number
-) => {
+): APIGatewayAuthorizerResult => {
   const authResponse: APIGatewayAuthorizerResult = {
     principalId,
     policyDocument: {
@@ -48,7 +60,7 @@ const generatePolicy = (
       Statement: [
         {
           Action: "execute-api:Invoke",
-          Effect: effect as "Allow" | "Deny",
+          Effect: effect,
           Resource: resource,
         },
       ],
