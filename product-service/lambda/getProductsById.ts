@@ -24,7 +24,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({ message: "Product ID is required" }),
     };
@@ -56,7 +56,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Methods": "GET",
+          "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
         },
         body: JSON.stringify({ message: "Product not found" }),
       };
@@ -81,7 +81,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify(response),
     };
@@ -92,7 +92,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({ message: "Internal Server Error" }),
     };

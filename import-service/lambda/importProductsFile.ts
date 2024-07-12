@@ -11,6 +11,8 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       statusCode: 400,
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "*",
       },
       body: JSON.stringify({ message: "Name query parameter is required" }),
     };
@@ -26,20 +28,22 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     const signedUrl = await getSignedUrl(s3Client, command, {
       expiresIn: 3600,
     });
-
     return {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "*",
       },
       body: JSON.stringify({ url: signedUrl }),
     };
   } catch (error) {
-    console.error("Error creating signed URL:", error);
     return {
       statusCode: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "*",
       },
       body: JSON.stringify({ message: "Could not create signed URL" }),
     };

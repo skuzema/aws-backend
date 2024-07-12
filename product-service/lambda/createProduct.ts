@@ -27,7 +27,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
         },
         body: JSON.stringify({
           message: "Invalid request, you are missing the parameter body",
@@ -48,7 +48,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
-          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
         },
         body: JSON.stringify({
           message:
@@ -100,7 +100,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({
         message: "Product created successfully",
@@ -114,7 +114,7 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
-        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Methods": "OPTIONS,GET,POST,PUT,DELETE",
       },
       body: JSON.stringify({
         message: "Internal Server Error",
