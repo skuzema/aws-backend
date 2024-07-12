@@ -6,9 +6,15 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as s3n from "aws-cdk-lib/aws-s3-notifications";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
+interface ImportServiceStackProps extends cdk.StackProps {
+  basicAuthorizerArn: string;
+}
+
 export class ImportServiceStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: ImportServiceStackProps) {
     super(scope, id, props);
+
+    const { basicAuthorizerArn } = props;
 
     const importedBucket = s3.Bucket.fromBucketName(
       this,
@@ -40,7 +46,11 @@ export class ImportServiceStack extends cdk.Stack {
       this,
       "basicAuthorizer",
       {
-        handler: importProductsFile,
+        handler: lambda.Function.fromFunctionArn(
+          this,
+          "ImportedAuthorizer",
+          basicAuthorizerArn
+        ),
         identitySources: [apigateway.IdentitySource.header("Authorization")],
       }
     );
@@ -50,6 +60,7 @@ export class ImportServiceStack extends cdk.Stack {
     );
 
     const importResource = api.root.addResource("import");
+
     importResource.addMethod("GET", importIntegration, {
       authorizer,
       authorizationType: apigateway.AuthorizationType.CUSTOM,
@@ -66,6 +77,22 @@ export class ImportServiceStack extends cdk.Stack {
           },
           responseModels: {
             "application/json": apigateway.Model.EMPTY_MODEL,
+          },
+        },
+        {
+          statusCode: "401",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Methods": true,
+          },
+        },
+        {
+          statusCode: "403",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Methods": true,
           },
         },
       ],
@@ -112,7 +139,7 @@ export class ImportServiceStack extends cdk.Stack {
       responseHeaders: {
         "Access-Control-Allow-Origin": "'*'",
         "Access-Control-Allow-Headers": "'*'",
-        "Access-Control-Allow-Methods": "'*'",
+        "Access-Control-Allow-Methods": "'GET,OPTIONS'",
       },
     });
 
@@ -122,7 +149,7 @@ export class ImportServiceStack extends cdk.Stack {
       responseHeaders: {
         "Access-Control-Allow-Origin": "'*'",
         "Access-Control-Allow-Headers": "'*'",
-        "Access-Control-Allow-Methods": "'*'",
+        "Access-Control-Allow-Methods": "'GET,OPTIONS'",
       },
     });
   }
