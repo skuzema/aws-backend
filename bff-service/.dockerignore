@@ -1,0 +1,10 @@
+node_modules        # doesn't need to be sent because in Dockerfile used npm install  
+.git                # not required in the Docker image since it is used for development and version tracking purposes only
+.github             # not necessary for running the application and should not be included in the Docker image
+.vscode             # contains VSCode configuration files, specific to the developer's local setup
+README.md           # is not required in the Docker image for the application's operation.
+Dockerfile          # is used to build the Docker image and does not need to be inside the Docker image
+.dockerignore       # file itself is used to specify what to exclude from the Docker build context.
+dist                # contains the compiled application files, ignored during the build phase
+cdk                 # contain AWS CDK infrastructure code, not necessary for the running application
+test                # contains test files and scripts, not required in the production environment
