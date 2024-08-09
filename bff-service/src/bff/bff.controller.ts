@@ -19,19 +19,35 @@ export class BffController {
       cart: this.configService.get<string>('CART_SERVICE_URL'),
     };
 
+    console.log('serviceName:', serviceName);
     const serviceUrl = serviceUrls[serviceName];
+    console.log('serviceUrl:', serviceUrl);
 
     if (!serviceUrl) {
       return res.status(502).send('Cannot process request: Unknown service');
     }
 
     try {
+      const authToken = req.headers['authorization'] || process.env.AUTH_TOKEN;
+
+      if (!authToken) {
+        return res.status(401).send('Authorization token is missing');
+      }
+
       const response = await axios({
         method: req.method,
         url: `${serviceUrl}${req.originalUrl.replace(`/${serviceName}`, '')}`,
         data: req.body,
-        headers: req.headers,
-        httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+        headers: {
+          ...req.headers,
+          Authorization: `Basic ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        httpsAgent: new https.Agent({
+          rejectUnauthorized: false,
+          secureProtocol: 'TLSv1_2_method',
+          ciphers: 'DEFAULT:@SECLEVEL=0',
+        }),
       });
 
       res.status(response.status).send(response.data);
