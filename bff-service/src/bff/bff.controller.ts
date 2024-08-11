@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import * as https from 'https';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller(':serviceName')
 export class BffController {
@@ -19,20 +21,20 @@ export class BffController {
       cart: this.configService.get<string>('CART_SERVICE_URL'),
     };
 
-    console.log('serviceName:', serviceName);
     const serviceUrl = serviceUrls[serviceName];
-    console.log('serviceUrl:', serviceUrl);
 
     if (!serviceUrl) {
-      return res.status(502).send('Cannot process request: Unknown service');
+      return res
+        .status(502)
+        .json({ message: 'Cannot process request: Unknown service' });
     }
 
     try {
       const authToken = req.headers['authorization'] || process.env.AUTH_TOKEN;
 
-      if (!authToken) {
-        return res.status(401).send('Authorization token is missing');
-      }
+      const cert = fs.readFileSync(path.resolve(__dirname, '../ca/cert.pem'));
+      const key = fs.readFileSync(path.resolve(__dirname, '../ca/key.pem'));
+      const ca = fs.readFileSync(path.resolve(__dirname, '../ca/ca.key'));
 
       const response = await axios({
         method: req.method,
@@ -42,17 +44,23 @@ export class BffController {
           ...req.headers,
           Authorization: `Basic ${authToken}`,
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
         httpsAgent: new https.Agent({
+          // cert: ca,
+          // key: key,
+          ca: ca,
           rejectUnauthorized: false,
           secureProtocol: 'TLSv1_2_method',
           ciphers: 'DEFAULT:@SECLEVEL=0',
         }),
       });
 
-      res.status(response.status).send(response.data);
+      res.status(response.status).json(response.data);
     } catch (error) {
-      res.status(error.response?.status || 500).send(error.message);
+      res
+        .status(error.response?.status || 500)
+        .json({ message: error.message });
     }
   }
 }
