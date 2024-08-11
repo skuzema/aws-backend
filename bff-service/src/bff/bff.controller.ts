@@ -32,8 +32,6 @@ export class BffController {
     try {
       const authToken = req.headers['authorization'] || process.env.AUTH_TOKEN;
 
-      const cert = fs.readFileSync(path.resolve(__dirname, '../ca/cert.pem'));
-      const key = fs.readFileSync(path.resolve(__dirname, '../ca/key.pem'));
       const ca = fs.readFileSync(path.resolve(__dirname, '../ca/ca.key'));
 
       const response = await axios({
@@ -47,8 +45,6 @@ export class BffController {
           Accept: 'application/json',
         },
         httpsAgent: new https.Agent({
-          // cert: ca,
-          // key: key,
           ca: ca,
           rejectUnauthorized: false,
           secureProtocol: 'TLSv1_2_method',
